@@ -7,11 +7,12 @@ import java.io.*;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Pixmap.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -33,7 +34,7 @@ public class Battle_of_Hero implements ApplicationListener {
 	Integer rect[] = new Integer[2];
 	
 	int[] hp = new int[2];
-	
+	int hpFull = 100;
 	
 	
 	Rectangle fire;
@@ -47,9 +48,18 @@ public class Battle_of_Hero implements ApplicationListener {
 	DataOutputStream out = null;
 	
 	Sound hpSound;
+	Music background;
+	
+	TextureRegion pix;
+	Pixmap pixmap;
+	
+	int margin, pixHeight, titleWidth, titleHeight;
 
 	public void create(){
 		hpSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
+		background = Gdx.audio.newMusic(Gdx.files.internal("background.ogg"));
+		background.setLooping(true);
+		background.play();
 		
 		heroImage = new Texture[2];
 		
@@ -63,7 +73,7 @@ public class Battle_of_Hero implements ApplicationListener {
 		hero[0] = new Rectangle(0, 0, 128, 256);
 		rect[0] = 0;
 		
-		hp[0] = hp[1] = 20;
+		hp[0] = hp[1] = hpFull;
 		
 		hero[1]= new Rectangle(800-128, 0, 128, 256);
 		rect[1] = 1;
@@ -89,6 +99,19 @@ public class Battle_of_Hero implements ApplicationListener {
 		
 		Update_thread t = new Update_thread(in);
         t.start();
+        
+        margin = 2;
+        
+        titleHeight = 256;
+        
+        titleWidth = 128;
+        pixHeight = 5;
+        
+        pixmap = new Pixmap(128, 8, Format.RGBA8888);
+        pixmap.setColor(Color.BLACK);
+        pixmap.drawRectangle(0, 0, titleWidth, pixHeight);        
+        
+
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -103,6 +126,8 @@ public class Battle_of_Hero implements ApplicationListener {
 		Iterator<Array<Integer>> itRects = fireRect.iterator();
 		
 		batch.begin();
+
+			
 			for (int i=0; i<2; ++i){
 				
 				if (itFires.hasNext()){
@@ -115,12 +140,23 @@ public class Battle_of_Hero implements ApplicationListener {
 					}
 				}
 			}
-			for (int i=0; i<2; ++i) batch.draw(heroImage[rect[i]], hero[i].x, hero[i].y);
+			for (int i=0; i<2; ++i){
+				batch.draw(heroImage[rect[i]], hero[i].x, hero[i].y);	
+				pixmap.setColor(Color.WHITE);
+				pixmap.fillRectangle(1, 1, titleWidth-2, pixHeight - 2);
+				pixmap.setColor(Color.RED);
+				pixmap.fillRectangle(1, 1, titleWidth * hp[i] / hpFull-2, pixHeight - 2);
+				
+				Texture pixmaptex = new Texture(pixmap);
+				pix = new TextureRegion(pixmaptex, titleWidth, pixHeight);
+				batch.draw(pix, hero[i].x, hero[i].y+titleHeight+margin);
+			}
+			
 		batch.end();
 
 		
 		itFires = fires.iterator();
-        itRects = fireRect.iterator();
+		itRects = fireRect.iterator();
         
 		for (int i=0; i<2; ++i){
 			
@@ -137,7 +173,8 @@ public class Battle_of_Hero implements ApplicationListener {
 						itRect.remove();
 					}
 					else if (fire.overlaps(hero[1-i])){
-						hp[1-i]--;
+						if (hp[1-i]>0) hp[1-i]--;
+						System.out.println(1-i+" "+hp[1-i]);
 						itFire.remove();
 						itRect.remove();
 						hpSound.play();
@@ -145,24 +182,25 @@ public class Battle_of_Hero implements ApplicationListener {
 				}
 			}
 		}		
-	
-		if (Gdx.input.isKeyPressed(Keys.LEFT)){
-			try {
-				out.writeUTF("L");
-			} catch (IOException e) {}
+		if (hp[0]>0 && hp[1]>0){
+			if (Gdx.input.isKeyPressed(Keys.LEFT)){
+				try {
+					out.writeUTF("L");
+				} catch (IOException e) {}
+			}
+			
+			if (Gdx.input.isKeyPressed(Keys.RIGHT)){
+				try{
+					out.writeUTF("R");
+				}catch (IOException e){}
+			}
+			
+			if (Gdx.input.isKeyPressed(Keys.SPACE)){
+				try{
+					out.writeUTF(" ");
+				}catch (IOException e){}
+			}	
 		}
-		
-		if (Gdx.input.isKeyPressed(Keys.RIGHT)){
-			try{
-				out.writeUTF("R");
-			}catch (IOException e){}
-		}
-		
-		if (Gdx.input.isKeyPressed(Keys.SPACE)){
-			try{
-				out.writeUTF(" ");
-			}catch (IOException e){}
-		}		
 	}	
 	
 	
