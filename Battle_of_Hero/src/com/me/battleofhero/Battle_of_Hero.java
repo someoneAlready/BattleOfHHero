@@ -1,51 +1,121 @@
 package com.me.battleofhero;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
-
-import java.io.*;
 import java.net.*;
+import java.io.*;
 
-public class Battle_of_Hero extends Game {
-	static Battle battle = null;
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.Input.*;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.math.Rectangle;
 
-	String server = "localhost";
-	static Socket socket = null;
-	static DataInputStream in = null;
-	static DataOutputStream out = null;
-	
+public class Battle_of_Hero implements ApplicationListener {
+	static final int width = 1200;
+	static final int height = 600;
+
+	static final int key[] = { Keys.LEFT, Keys.RIGHT, Keys.UP, Keys.DOWN,
+			Keys.SPACE };
+	static final char send[] = { 'L', 'R', 'U', 'D', ' ' };
+
+	OrthographicCamera camera;
+	SpriteBatch batch;
+
+	static String server = "localhost";
+	Socket socket = null;
+	DataInputStream in = null;
+	DataOutputStream out = null;
+
+	static Hero hero[] = new Hero[2];
+	static Texture Image;
+
 	@Override
 	public void create() {
+		camera = new OrthographicCamera();
+		camera.setToOrtho(false, width, height);
+		batch = new SpriteBatch();
+
 		try {
 			socket = new Socket(server, 12306);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
-			Update_thread t = new Update_thread(in);
+			ListenningThread t = new ListenningThread(in);
 			t.start();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		battle = new Battle();
-		Gdx.input.setInputProcessor(battle);		
+
+		hero[0] = new Hero("hero1.png", "hero.png", new Rectangle(0, 0, 128,
+				256), 1, 0);
+		hero[1] = new Hero("hero1.png", "hero.png", new Rectangle(width - 128,
+				0, 128, 256), 0, 1);
+
+		Image = new Texture(Gdx.files.internal("firex.png"));
 	}
 
+	@Override
+	public void resize(int width, int height) {
+
+	}
 
 	@Override
 	public void render() {
-		battle.draw();
+		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
+
+		batch.begin();
+		for (int i = 0; i < 2; ++i)
+			hero[i].draw(batch);
+		batch.end();
+
+		for (int i = 0; i < 2; ++i)
+			hero[i].move();
+
+		for (int i = 0; i < key.length; ++i)
+			if (Gdx.input.isKeyPressed(key[i]))
+				try {
+					out.writeUTF("" + send[i]);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+		if (hero[0].hp.hp == 0 || hero[1].hp.hp == 0) {
+			new Database(hero[0].id, hero[1].id, hero[0].hp.hp==0?hero[1].id:hero[0].id);
+			Gdx.app.exit();
+		}
+	}
+
+	@Override
+	public void pause() {
+
+	}
+
+	@Override
+	public void resume() {
+
 	}
 
 	@Override
 	public void dispose() {
-		battle.dispose();
-		super.dispose();
+
+	}
+
+	static void gao(String s) {
+		int x;
+		switch (s.charAt(0)) {
+		case '0':
+			x = 0;
+			break;
+		case '1':
+			x = 1;
+			break;
+		default:
+			return;
+		}
+		hero[x].gao(s.charAt(1));
 	}
 }
