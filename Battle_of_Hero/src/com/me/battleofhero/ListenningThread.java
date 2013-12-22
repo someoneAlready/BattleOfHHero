@@ -14,7 +14,11 @@ public class ListenningThread extends Thread {
 			String s;
 			try {
 				s = in.readUTF();
-				Battle_of_Hero.gao(s);
+				if (s.substring(1).compareTo("begin")==0){
+					Battle_of_Hero.id2 = s.charAt(0)-'0';
+				}
+				else
+					Battle_of_Hero.gao(s);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

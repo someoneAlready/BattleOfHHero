@@ -15,9 +15,9 @@ public class Init {
 			System.out.println("Successful!");
 
 			String sql[] = {
-					"CREATE DATABASE battleofhero;",
+					"CREATE DATABASE battleofhero  DEFAULT CHARACTER SET utf8;",
 					"USE battleofhero;", 
-					"CREATE TABLE user(uid int primary key AUTO_INCREMENT, uname char(20), upwd char(20), urating int);",
+					"CREATE TABLE user(uid int primary key AUTO_INCREMENT, uname varchar(20), upwd varchar(20), urating int default 1000);",
 					"CREATE TABLE battle(bid int primary key AUTO_INCREMENT, uid0 int, uid1 int, wid int)" };
 
 			for (int i = 0; i < sql.length; ++i)

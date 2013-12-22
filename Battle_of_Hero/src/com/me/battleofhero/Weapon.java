@@ -1,17 +1,9 @@
 package com.me.battleofhero;
 
-import java.net.*;
-import java.util.*;
-import java.io.*;
-
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.Input.*;
-import com.badlogic.gdx.audio.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Pixmap.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.utils.*;
 
 public class Weapon {
 	static final int width = 64;

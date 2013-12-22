@@ -1,14 +1,9 @@
 package com.me.battleofhero;
 
-import java.net.*;
 import java.util.*;
-import java.io.*;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.Input.*;
-import com.badlogic.gdx.audio.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Pixmap.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
@@ -60,7 +55,6 @@ public class Hero {
 					|| weapon.position.y > Battle_of_Hero.width - Weapon.width)
 				it.remove();
 			else {
-				System.out.println(1 - id);
 				if (weapon.position
 						.overlaps(Battle_of_Hero.hero[1 - id].position)) {
 

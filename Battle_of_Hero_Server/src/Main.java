@@ -6,6 +6,7 @@ public class Main {
 	public static void main(String args[]) {
 		ServerSocket server = null;
 		Socket s0 = null, s1 = null;
+		System.out.println("Fuck up, we begin to listenning the port...");
 		while (true) {
 			try {
 				server = new ServerSocket(12306);
@@ -69,6 +70,7 @@ class ServerThread extends Thread {
 	}
 
 	public void run() {
+		write(x+"begin");
 		while (true) {
 			try {
 				String s = in.readUTF();

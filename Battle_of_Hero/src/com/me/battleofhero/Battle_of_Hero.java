@@ -20,14 +20,20 @@ public class Battle_of_Hero implements ApplicationListener {
 	OrthographicCamera camera;
 	SpriteBatch batch;
 
-	static String server = "localhost";
+	static String server = "acm.zzu.edu.cn";
 	Socket socket = null;
 	DataInputStream in = null;
 	DataOutputStream out = null;
 
 	static Hero hero[] = new Hero[2];
 	static Texture Image;
-
+	static int  id2;
+	String id;
+	
+	Battle_of_Hero(String id){
+		this.id = id;
+	}
+	
 	@Override
 	public void create() {
 		camera = new OrthographicCamera();
@@ -84,7 +90,13 @@ public class Battle_of_Hero implements ApplicationListener {
 				}
 
 		if (hero[0].hp.hp == 0 || hero[1].hp.hp == 0) {
-			new Database(hero[0].id, hero[1].id, hero[0].hp.hp==0?hero[1].id:hero[0].id);
+			int xx;
+			if (hero[0].hp.hp ==0) xx=0;
+			else xx=1;
+			if (xx==id2)
+				new Database(id, -100);
+			else
+				new Database(id, 100);
 			Gdx.app.exit();
 		}
 	}
